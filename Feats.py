@@ -23,10 +23,10 @@ def importTweetFileToDictionary(pathToFile):
     global idEnumerator
 
     with open(pathToFile, 'r') as file:
-        for counter, line in enumerate(file):
+        for line in file:
             if line == "\n": # Skip empty lines
                 continue
-            tweetID, tweet, category = line.split("\t")
+            tweetID, tweet, category = line.strip().split("\t")
             tweet = removeLinks(tweet) # Remove links
             for term in tokenize(tweet):
                 if term != '' and term != ' ':
