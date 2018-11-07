@@ -8,10 +8,10 @@ uniqueTermIdDictionary = OrderedDict()
 idEnumerator = 1
 
 def main():
-    readTweetFile('tweets/Tweets.14cat.train')
+    importTweetFileToDictionary('tweets/Tweets.14cat.train')
     exportUniqueTerms('out/feats.dic')
 
-def readTweetFile(pathToFile):
+def importTweetFileToDictionary(pathToFile):
     """Reads tweets train file and saves unique terms in dictionary structure with unique IDs
 
     Parameters
@@ -29,11 +29,10 @@ def readTweetFile(pathToFile):
             tweetID, tweet, category = line.split("\t")
             tweet = removeLinks(tweet) # Remove links
             for term in tokenize(tweet):
-                if len(term) > 1:
+                if term != '' and term != ' ':
                     if term not in uniqueTermIdDictionary:
                         uniqueTermIdDictionary[term] = idEnumerator
                         idEnumerator += 1
-        print('unique size {}'.format(len(uniqueTermIdDictionary)))
 
 def tokenize(string):
     """Splits parameter 'string' on spaces and returns a list of the tokens.
@@ -49,7 +48,7 @@ def tokenize(string):
         A list containing all tokens
     """
     # return re.split(r' ', string) # r stands for raw expression
-    return re.split(r'[\s | - | & | , | ( | )]+', string)
+    return re.split(r'(?!\&\b)\W+', string)
 
 def removeLinks(text):
     """Removes links from given text - either http or https.
