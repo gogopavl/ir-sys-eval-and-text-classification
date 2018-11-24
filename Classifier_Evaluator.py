@@ -1,7 +1,6 @@
+"""Classifier_Evaluator.py : Module that evaluates the classifier"""
 from collections import OrderedDict
-from collections import defaultdict
 import os
-import re
 
 distinctClasses = set() # Set containg the unique class IDs
 testClassesList = [] # List containing all the test file class ids
@@ -9,19 +8,33 @@ predictionClassesList = [] # List containing all the prediction file class ids
 classMeasures = OrderedDict() # Dictionary where key = class ID and value = (precision, recall, f1) triplet
 
 def main():
-    global testClassesList, predictionClassesList, distinctClasses
+    global testClassesList, predictionClassesList, distinctClasses, classMeasures
+
     testClassesList = importClasses('out/feats.test')
-    predictionClassesList = importClasses('svm_windows/pred.out')
+    # predictionClassesList = importClasses('svm_windows/pred.out')
+    predictionClassesList = importClasses('svm_linux/pred.out')
 
     calculateClassMeasures()
-    print('Accuracy = {:.3f}'.format(calculateSystemAccuracy()))
-    print('Macro-F1 = {:.3f}'.format(calculateSystemFMeasure()))
-    print('Results per class:')
-    for classID in distinctClasses:
-        print('{}: P={:.3f} R={:.3f} F={:.3f}'.format(classID, classMeasures[classID][0], classMeasures[classID][1], classMeasures[classID][2]))
+    exportResults("tc_out/Eval.txt")
+    # matrix = calculateConfusionMatrix()
+    # printConfusionMatrix(matrix)
 
-    matrix = calculateConfusionMatrix()
-    printConfusionMatrix(matrix)
+def exportResults(pathToOutputFile):
+    """Exports results to a specified file
+
+    Parameters
+    ----------
+    pathToOutputFile : String type
+        The path leading to the output file
+    """
+    global testClassesList, predictionClassesList, distinctClasses, classMeasures
+
+    with open(pathToOutputFile, 'w') as output:
+        output.write('Accuracy = {:.3f}\n'.format(calculateSystemAccuracy()))
+        output.write('Macro-F1 = {:.3f}\n'.format(calculateSystemFMeasure()))
+        output.write('Results per class:\n')
+        for classID in distinctClasses:
+            output.write('{}: P={:.3f} R={:.3f} F={:.3f}\n'.format(classID, classMeasures[classID][0], classMeasures[classID][1], classMeasures[classID][2]))
 
 def printConfusionMatrix(matrix):
     """Prints confusion matrix in a specific format
@@ -59,7 +72,7 @@ def calculateConfusionMatrix():
     return confusionMatrix
 
 def calculateSystemFMeasure():
-    """Calculates precision, recall and F1 measures of the classifier for the given class
+    """Calculates system's F1 Measure
 
     Returns
     -------
@@ -81,19 +94,19 @@ def calculateClassMeasures():
 
     totalPredictions = len(testClassesList)
     for classID in distinctClasses:
+        correctPredictions = numberOfPredictions = classTotal = 0
         for i in range(0, totalPredictions):
-
             if int(predictionClassesList[i]) == classID:
-                numberOfPredictions += 1 #
+                numberOfPredictions += 1 # Number of total predictions
                 if testClassesList[i] == predictionClassesList[i]:
-                    correctPredictions += 1
+                    correctPredictions += 1 # Number of correct predictions
 
             if int(testClassesList[i]) == classID:
                 classTotal += 1
 
         precision = float(correctPredictions) / float(numberOfPredictions)
         recall = float(correctPredictions) / float(classTotal)
-        f1 = (2 * precision * recall) / (precision + recall)
+        f1 = float(2 * float(precision) * float(recall)) / float(float(precision) + float(recall))
         classMeasures[classID] = (precision, recall, f1)
 
 def calculateSystemAccuracy():

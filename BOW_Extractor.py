@@ -1,15 +1,14 @@
+"""BOW_Extractor.py : Module that extracts the BOW features from the training files"""
 from collections import OrderedDict
-from collections import defaultdict
-import collections
 import os
 import re
 
-uniqueTermIdDictionary = OrderedDict()
-idEnumerator = 1
+uniqueTermIdDictionary = OrderedDict() # Dictionary that stores terms and corresponding ID
+idEnumerator = 1 # Global enumerator to assign IDs to terms
 
 def main():
-    importTweetFileToDictionary('tweets/Tweets.14cat.train')
-    exportUniqueTerms('out/feats.dic')
+    importTweetFileToDictionary('tweets/Tweets.14cat.train') # Import training file and preprocess
+    exportUniqueTerms('tc_out/feats.dic') # Export unique terms and corresponding IDs to file
 
 def importTweetFileToDictionary(pathToFile):
     """Reads tweets train file and saves unique terms in dictionary structure with unique IDs
@@ -27,12 +26,12 @@ def importTweetFileToDictionary(pathToFile):
             if line == "\n": # Skip empty lines
                 continue
             tweetID, tweet, category = line.strip().split("\t")
-            tweet = removeLinks(tweet) # Remove links
-            for term in tokenize(tweet):
-                if term != '' and term != ' ':
-                    if term not in uniqueTermIdDictionary:
-                        uniqueTermIdDictionary[term] = idEnumerator
-                        idEnumerator += 1
+            tweet = removeLinks(tweet) # Remove links from text
+            termsList = filter(None, tokenize(tweet))
+            for term in termsList:
+                if term not in uniqueTermIdDictionary:
+                    uniqueTermIdDictionary[term] = idEnumerator
+                    idEnumerator += 1
 
 def tokenize(string):
     """Splits parameter 'string' on spaces and returns a list of the tokens.
@@ -47,8 +46,8 @@ def tokenize(string):
     tokens : List of strings
         A list containing all tokens
     """
-    # return re.split(r' ', string) # r stands for raw expression
-    return re.split(r'(?!\&\b)\W+', string)
+    # return re.split(r'\s+', string) # Tokenize on any whitespace character - baseline tokenization
+    return re.split(r'\W+', string) # Tokenize on any non alphabetical character
 
 def removeLinks(text):
     """Removes links from given text - either http or https.

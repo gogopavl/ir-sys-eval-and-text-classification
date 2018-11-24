@@ -14,7 +14,7 @@ def main():
     calculateMeasures()
 
 def calculateMeasures():
-    """Calculates the measures for each system
+    """Calculates the measures for each system and writes them to file
 
     Returns
     -------
@@ -23,11 +23,11 @@ def calculateMeasures():
     """
     global systemResults, queryRelevantDocuments
 
-    folder = "eval/"
+    folder = "IR_evaluations/"
     if not os.path.exists(folder): # Check whether the directory exists or not
         os.makedirs(folder)
 
-    with open('eval/All.eval', 'w') as allFile:
+    with open(folder+'All.eval', 'w') as allFile:
         allFile.write('\tP@10\tR@50\tr-Precision\tAP\tnDCG@10\tnDCG@20\n')
         for systemID, results in systemResults.iteritems():
 
@@ -78,7 +78,7 @@ def nDCG(systemResults, k):
             if flag: # Only for the first entry - no discount
                 sum = getDocumentRelevanceValue(queryID, documentID)
                 flag = False
-            else:
+            else: # For every entry from i=2 onwards
                 sum += float(getDocumentRelevanceValue(queryID, documentID))/float(np.log2(counter + 1))
             if counter + 1 == k:
                 break
@@ -110,12 +110,11 @@ def getIDCG(queryID, k):
         if flag: # Only for the first entry - no discount
             iDCG = value
             flag = False
-        else:
+        else: # For every entry from i=2 onwards
             iDCG += float(value)/float(np.log2(iteration + 1))
         if iteration + 1 == k:
             break
     return iDCG
-
 
 def getDocumentRelevanceValue(queryID, documentID):
     """Returns the document gain value for a given query and document
