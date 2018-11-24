@@ -10,12 +10,12 @@ classMeasures = OrderedDict() # Dictionary where key = class ID and value = (pre
 def main():
     global testClassesList, predictionClassesList, distinctClasses, classMeasures
 
-    testClassesList = importClasses('tc_out/feats.test')
+    testClassesList = importClasses('tc_out_improved/feats1.test')
     # predictionClassesList = importClasses('svm_windows/pred.out')
-    predictionClassesList = importClasses('svm_linux/pred.out')
+    predictionClassesList = importClasses('svm_linux_improved/pred_improved.out')
 
     calculateClassMeasures()
-    exportResults("tc_out/Eval.txt")
+    exportResults("tc_out_improved/Eval_improved.txt")
     # matrix = calculateConfusionMatrix()
     # printConfusionMatrix(matrix)
 

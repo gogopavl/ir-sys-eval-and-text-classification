@@ -1,14 +1,18 @@
-"""BOW_Extractor.py : Module that extracts the BOW features from the training files"""
+"""BOW_Extractor.py : Module that extracts the BOW features from the training files - improvements"""
 from collections import OrderedDict
+from nltk.stem import PorterStemmer # Porter Stemmer
 import os
 import re
 
 uniqueTermIdDictionary = OrderedDict() # Dictionary that stores terms and corresponding ID
 idEnumerator = 1 # Global enumerator to assign IDs to terms
+stopwords = set() # Set with stopwords - O(1) search
+porter = PorterStemmer()
 
 def main():
+    loadStopwords()
     importTweetFileToDictionary('tweets/Tweets.14cat.train') # Import training file and preprocess
-    exportUniqueTerms('tc_out/feats.dic') # Export unique terms and corresponding IDs to file
+    exportUniqueTerms('tc_out_improved/feats1.dic') # Export unique terms and corresponding IDs to file
 
 def importTweetFileToDictionary(pathToFile):
     """Reads tweets train file and saves unique terms in dictionary structure with unique IDs
@@ -26,12 +30,14 @@ def importTweetFileToDictionary(pathToFile):
             if line == "\n": # Skip empty lines
                 continue
             tweetID, tweet, category = line.strip().split("\t")
-            tweet = removeLinks(tweet) # Remove links from text
+            tweet = removeLinks(tweet).lower() # Remove links from text and lower case
             termsList = filter(None, tokenize(tweet))
             for term in termsList:
-                if term not in uniqueTermIdDictionary:
-                    uniqueTermIdDictionary[term] = idEnumerator
-                    idEnumerator += 1
+                if isNotAStopword(term):
+                    stemmedTerm = stemWord(term)
+                    if stemmedTerm not in uniqueTermIdDictionary:
+                        uniqueTermIdDictionary[stemmedTerm] = idEnumerator
+                        idEnumerator += 1
 
 def tokenize(string):
     """Splits parameter 'string' on spaces and returns a list of the tokens.
@@ -81,5 +87,46 @@ def exportUniqueTerms(pathToFile):
     with open(pathToFile, 'w') as output:
         for term, id in uniqueTermIdDictionary.iteritems():
             output.write('{}\t{}\n'.format(term, id))
+
+def stemWord(word):
+    """Stems the given word using the Porter Stemmer library
+
+    Parameters
+    ----------
+    word : String type
+        A word to be stemmed
+
+    Returns
+    -------
+    stemmedWord : String type
+        The stemmed version of the given word
+    """
+    global porter
+    return porter.stem(word)
+
+def isNotAStopword(word):
+    """Determines whether a word is a stopword
+
+    Parameters
+    ----------
+    word : String type
+        A word to be checked
+
+    Returns
+    -------
+    isNotStopword : Boolean type
+        Returns True if the given word is not a stopword, otherwise False
+    """
+    global stopwords
+    if word in stopwords:
+        return False
+    return True
+
+def loadStopwords():
+    """Loads all stopword terms from file and saves them to a set structure
+    """
+    global stopwords
+    with open('files/stopwords.txt') as stopWordFile:
+        stopwords = set(stopWordFile.read().splitlines())
 
 main()
