@@ -33,6 +33,7 @@ def convertTweetEntries(pathToInputFile, pathToOutputFile):
             tempString = "" # String used to generate the format for the classifier
             tempSet = set() # Set used to: 1) keep unique IDs within entry 2) sort IDs in ascending order
             tweetID, tweet, category = line.strip().split("\t")
+            
             tweet = removeLinks(tweet).lower() # Remove links
             termList = filter(None, tokenize(tweet))
             for term in termList:

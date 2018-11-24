@@ -1,6 +1,7 @@
 """BOW_Extractor.py : Module that extracts the BOW features from the training files - improvements"""
 from collections import OrderedDict
 from nltk.stem import PorterStemmer # Porter Stemmer
+from nltk.corpus import wordnet as wn
 import os
 import re
 
@@ -38,6 +39,11 @@ def importTweetFileToDictionary(pathToFile):
                     if stemmedTerm not in uniqueTermIdDictionary:
                         uniqueTermIdDictionary[stemmedTerm] = idEnumerator
                         idEnumerator += 1
+                    synonyms = getSynonyms(term)
+                    for synonym in synonyms:
+                        if synonym not in uniqueTermIdDictionary:
+                            uniqueTermIdDictionary[synonym] = idEnumerator
+                            idEnumerator += 1
 
 def tokenize(string):
     """Splits parameter 'string' on spaces and returns a list of the tokens.
@@ -128,5 +134,24 @@ def loadStopwords():
     global stopwords
     with open('files/stopwords.txt') as stopWordFile:
         stopwords = set(stopWordFile.read().splitlines())
+
+def getSynonyms(term):
+    """Finds word synonyms and returns them
+
+    Parameters
+    ----------
+    term : String type
+        A word whose synonyms will be obtained
+
+    Returns
+    -------
+    synonyms : List type
+        List of synonyms
+    """
+    tempSet = set()
+    for synset in wn.synsets(term):
+        for word in synset.lemma_names():
+            tempSet.add(word)
+    return list(tempSet)
 
 main()
