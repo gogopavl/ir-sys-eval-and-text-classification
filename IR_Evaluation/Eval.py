@@ -42,7 +42,7 @@ def calculateMeasures():
             with open(folder+filename, 'w') as output:
                 output.write('\tP@10\tR@50\tr-Precision\tAP\tnDCG@10\tnDCG@20\n')
                 for queryID in queryRelevantDocuments:
-                    output.write('{}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\n'.format(queryID, systemPrecision[queryID], systemRecall[queryID], systemPrecision[queryID], average_precision[queryID], nDCG10[queryID], nDCG20[queryID]))
+                    output.write('{}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\n'.format(queryID, systemPrecision[queryID], systemRecall[queryID], systemRPrecision[queryID], average_precision[queryID], nDCG10[queryID], nDCG20[queryID]))
                 output.write('{}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\n'.format("mean", np.mean(systemPrecision.values()), np.mean(systemRecall.values()), np.mean(systemRPrecision.values()), np.mean(average_precision.values()), np.mean(nDCG10.values()), np.mean(nDCG20.values())))
 
             allFile.write('{}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\n'.format("S"+str(systemID), np.mean(systemPrecision.values()), np.mean(systemRecall.values()), np.mean(systemRPrecision.values()), np.mean(average_precision.values()), np.mean(nDCG10.values()), np.mean(nDCG20.values())))
