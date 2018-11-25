@@ -2,6 +2,8 @@
 from collections import OrderedDict
 from nltk.stem import PorterStemmer # Porter Stemmer
 from nltk.corpus import wordnet as wn
+import lxml.html
+from urllib2 import urlopen
 import os
 import re
 
@@ -31,6 +33,14 @@ def importTweetFileToDictionary(pathToFile):
             if line == "\n": # Skip empty lines
                 continue
             tweetID, tweet, category = line.strip().split("\t")
+            for link in getLinks(tweet):
+                linkTerms = filter(None, getLinkTitleTerms(link))
+                for term in linkTerms:
+                    if isNotAStopword(term) and term is not '' or term is not ' ':
+                        stemmedTerm = stemWord(term)
+                        if stemmedTerm not in uniqueTermIdDictionary:
+                            uniqueTermIdDictionary[stemmedTerm] = idEnumerator
+                            idEnumerator += 1
             tweet = removeLinks(tweet).lower() # Remove links from text and lower case
             termsList = filter(None, tokenize(tweet))
             for term in termsList:
@@ -75,6 +85,45 @@ def removeLinks(text):
         The given string without any links
     """
     return re.sub(r'https?:\/\/[^\s]+', '', text)
+
+def getLinkTitleTerms(link):
+    """Returns title list from given link - either http or https.
+
+    Parameters
+    ----------
+    link : String type
+        The website
+
+    Returns
+    -------
+    titleTerms : List type
+        Terms of webpage's titles
+    """
+    titleTerms = []
+    try:
+        tree = lxml.html.parse(urlopen(link, timeout = 1))
+        titleText = tree.find('.//title').text
+        titleTerms = tokenize(titleText.lower())
+        return titleTerms
+    except:
+        return []
+
+def getLinks(text):
+    """Returns links from given text - either http or https.
+
+    Parameters
+    ----------
+    text : String type
+        A text string which may contain links
+
+    Returns
+    -------
+    links : List type
+        The links within the text
+    """
+    p = re.compile(r'https?:\/\/[^\s]+')
+    links = p.findall(text)
+    return links
 
 def exportUniqueTerms(pathToFile):
     """Exports the unique terms with their id to a file

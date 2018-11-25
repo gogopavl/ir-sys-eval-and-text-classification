@@ -1,5 +1,5 @@
 """Feature_Converter.py : Module that converts both tweet train & test files to feats files"""
-from BOW_Extractor_Improved import tokenize, removeLinks, isNotAStopword, stemWord
+from BOW_Extractor_Improved import tokenize, removeLinks, isNotAStopword, stemWord, getLinkTitleTerms, getLinks
 from collections import OrderedDict
 
 uniqueTermIdDictionary = OrderedDict() # Dictionary that stores terms and corresponding ID
@@ -33,7 +33,13 @@ def convertTweetEntries(pathToInputFile, pathToOutputFile):
             tempString = "" # String used to generate the format for the classifier
             tempSet = set() # Set used to: 1) keep unique IDs within entry 2) sort IDs in ascending order
             tweetID, tweet, category = line.strip().split("\t")
-            
+            for link in getLinks(tweet):
+                linkTerms = filter(None, getLinkTitleTerms(link))
+                for term in linkTerms:
+                    if isNotAStopword(term):
+                        stemmedTerm = stemWord(term)
+                        if stemmedTerm in uniqueTermIdDictionary:
+                            tempSet.add(int(uniqueTermIdDictionary[stemmedTerm])) # Otherwise, if it is in the term list add its corresponding ID
             tweet = removeLinks(tweet).lower() # Remove links
             termList = filter(None, tokenize(tweet))
             for term in termList:
