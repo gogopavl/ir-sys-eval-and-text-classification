@@ -23,7 +23,7 @@ def calculateMeasures():
     """
     global systemResults, queryRelevantDocuments
 
-    folder = "IR_evaluations/"
+    folder = "eval_out/"
     if not os.path.exists(folder): # Check whether the directory exists or not
         os.makedirs(folder)
 
