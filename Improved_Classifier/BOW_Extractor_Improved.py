@@ -69,7 +69,7 @@ def tokenize(string):
         A list containing all tokens
     """
     # return re.split(r'\s+', string) # Tokenize on any whitespace character - baseline tokenization
-    return re.split(r'\W+', string) # Tokenize on any non alphabetical character
+    return re.split(r'_|\W+', string) # Tokenize on any non alphabetical character
 
 def removeLinks(text):
     """Removes links from given text - either http or https.
