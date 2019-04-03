@@ -1,4 +1,4 @@
-# TTDS 2nd Assignment
+# Information Retrieval System Evaluation and Text Classification
 
 ## Dependencies
 
